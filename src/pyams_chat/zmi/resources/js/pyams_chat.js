@@ -92,7 +92,7 @@ const chat = {
             return true;
         };
 
-        const do_notify = () => {
+        const doNotify = () => {
             const
                 options = {
                     title: message.title,
@@ -114,18 +114,18 @@ const chat = {
                 if (checkNotificationPromise()) {
                     Notification.requestPermission().then((permission) => {
                         if (permission === 'granted') {
-                            do_notify();
+                            doNotify();
                         }
                     });
                 } else {
                     Notification.requestPermission((permission) => {
                         if (permission === 'granted') {
-                            do_notify();
+                            doNotify();
                         }
                     });
                 }
             } else {
-                do_notify();
+                doNotify();
             }
         }
     },
