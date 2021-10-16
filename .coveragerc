@@ -1,0 +1,3 @@
+[run]
+source = src/pyams_chat
+omit = src/pyams_chat/tests/*
