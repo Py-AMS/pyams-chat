@@ -27,7 +27,6 @@ from pyams_chat.interfaces import IChatMessage, IChatMessageExtension, IChatMess
 from pyams_security.interfaces.base import IPrincipalInfo
 from pyams_security.utility import get_principal
 from pyams_utils.adapter import get_adapter_weight
-from pyams_utils.dict import merge_dict
 
 
 __docformat__ = 'restructuredtext'
