@@ -194,4 +194,58 @@ A default message handler is available on user login:
      'timestamp': ...}
 
 
+Chat notifications viewlet
+--------------------------
+
+A small viewlet is available to integrate notifications into management interface:
+
+    >>> from pyams_chat.zmi.viewlet.notifications import UserNotificationsViewlet
+
+    >>> viewlet = UserNotificationsViewlet(app, request, None, None)
+    >>> viewlet.update()
+    >>> print(viewlet.render())
+    <div id="user-notifications" class="ml-1"
+         data-ams-modules='{
+            "notifications": "notifications",
+            "chat": "/--static--/pyams_chat/:version:...T.../js/pyams_chat.js"
+         }'
+         data-ams-callback="MyAMS.chat.initChat"
+         data-ams-events-handlers='{"show.bs.dropdown": "MyAMS.notifications.getNotifications"}'
+         data-ams-events-options='{"localTimestamp": "true"}'
+         data-ams-jwt-refresh-route="http://example.com/api/auth/jwt/token"
+         data-ams-jwt-verify-route="http://example.com/api/auth/jwt/verify"
+         data-ams-notifications-target="#notifications-pane"
+         data-ams-notifications-source="http://example.com/api/chat/notifications">
+        <a href="#" class="btn btn-light pt-2"
+           data-toggle="dropdown" data-offset="36,7">
+            <i class="fa fa-bell hint"
+               title="Notifications"
+               data-placement="bottom" data-offset="0,10"></i>
+            <b id="notifications-count" data-content="10"
+               class="badge bg-danger text-white"></b>
+        </a>
+        <div class="dropdown-menu dropdown-menu-right p-1"
+             data-ams-click-dismiss="false">
+            <div class="position-relative d-flex flex-column h-100">
+                <ul class="nav nav-tabs nav-fill">
+                    <li class="nav-item">
+                        <a href="#notifications-pane" class="nav-link active"
+                           data-toggle="tab"
+                           data-ams-events-handlers='{"show.bs.tab": "MyAMS.notifications.getNotifications"}'
+                           data-ams-events-options='{"localTimestamp": "true"}'>Notifications</a>
+                    </li>
+                </ul>
+                <div class="tab-content flex-grow-1 overflow-hidden p-1 pt-2 border">
+                    <div class="tab-pane d-flex flex-column overflow-hidden h-100 fade show active"
+                         id="notifications-pane">
+                        <!-- dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+Tests cleanup:
+
     >>> tearDown()
