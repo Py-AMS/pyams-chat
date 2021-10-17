@@ -73,7 +73,13 @@ const chat = {
     onMessage: (evt) => {
         let message = evt.data;
         if (typeof message === 'string') {
-            message = JSON.parse(message);
+            try {
+                message = JSON.parse(message);
+            }
+            catch (e) {
+                console.debug(message);
+                return;
+            }
         }
         chat.showDesktopNotification(message);
     },
