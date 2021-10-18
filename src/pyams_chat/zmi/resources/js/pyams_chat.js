@@ -44,6 +44,9 @@ const chat = {
                                 chat.wsClient.onopen = chat.onOpened;
                                 chat.wsClient.onmessage = chat.onMessage;
                                 chat.wsClient.onclose = chat.onClosed;
+                                if (chat.checkInterval !== null) {
+                                    clearInterval(chat.checkInterval);
+                                }
                                 chat.checkInterval = setInterval(chat.checkConnection, 30000);
                             }
                         });
