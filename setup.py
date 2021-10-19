@@ -23,11 +23,12 @@ DOCS = os.path.join(os.path.dirname(__file__),
 README = os.path.join(DOCS, 'README.txt')
 HISTORY = os.path.join(DOCS, 'HISTORY.txt')
 
-version = '1.0.2'
+version = '1.0.3'
 long_description = open(README).read() + '\n\n' + open(HISTORY).read()
 
 tests_require = [
     'fakeredis',
+    'pyams_auth_http',
     'pyams_zmi',
     'pyramid_zcml',
     'zope.exceptions'
