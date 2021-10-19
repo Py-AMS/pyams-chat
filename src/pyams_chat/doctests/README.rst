@@ -30,17 +30,34 @@ a *pubsub* subscriber as defined by PyAMS_chat_WS package.
     >>> include_utils(config)
     >>> from pyams_security import includeme as include_security
     >>> include_security(config)
+    >>> from pyams_auth_http import includeme as include_auth_http
+    >>> include_auth_http(config)
     >>> from pyams_chat import includeme as include_chat
     >>> include_chat(config)
 
     >>> import transaction
 
-    >>> from pyams_site.generations import upgrade_site
-    >>> request = DummyRequest()
+We will ne a security policy:
+
+    >>> from pyramid.authorization import ACLAuthorizationPolicy
+    >>> config.set_authorization_policy(ACLAuthorizationPolicy())
+
+    >>> from pyams_security.policy import PyAMSAuthenticationPolicy
+    >>> policy = PyAMSAuthenticationPolicy(secret='my secret',
+    ...                                    http_only=True,
+    ...                                    secure=False)
+    >>> config.set_authentication_policy(policy)
+
+    >>> from pyams_security.principal import PrincipalInfo
+    >>> from pyams_security.tests import new_test_request
+
+    >>> request = new_test_request('{system}.admin', 'admin', registry=config.registry)
+    >>> request.principal = PrincipalInfo(id='system:admin')
 
     >>> from pyramid.threadlocal import manager
     >>> manager.push({'request': request, 'registry': config.registry})
 
+    >>> from pyams_site.generations import upgrade_site
     >>> app = upgrade_site(request)
     Upgrading PyAMS security to generation 2...
 
@@ -54,11 +71,9 @@ Chat messages
 
 The base of this package usage is to create and send messages:
 
-    >>> from pyams_security.principal import PrincipalInfo
     >>> from pyams_chat.include import client_from_config
     >>> from pyams_chat.message import ChatMessage
 
-    >>> request.principal = PrincipalInfo(id='system:admin')
     >>> request.redis_client = client_from_config(config.registry.settings)
 
     >>> message = ChatMessage(request=request,
@@ -81,7 +96,7 @@ A REST API is available to get chat context; this context is used to filter chat
     >>> pprint.pprint(get_chat_context(request))
     {'context': {'*': ['user.login']},
      'principal': {'id': 'system:admin',
-                   'principals': ('system.Everyone',),
+                   'principals': (...'system:admin'...),
                    'title': '__unknown__'},
      'status': 'success'}
 
@@ -114,7 +129,6 @@ We can simulate this:
 We still get an empty notifications list because a message sender doesn't receive it's
 own notifications:
 
-    >>> request.principal = PrincipalInfo(id='test:user')
     >>> pprint.pprint(get_notifications(request))
     {'notifications': [], 'timestamp': ...}
 
@@ -131,7 +145,7 @@ named adapter, whose name must be the *category* of the message:
     ...
     ...     def get_target(self):
     ...         return {
-    ...             'principals': ['test:user']
+    ...             'principals': ['system:admin']
     ...     }
 
     >>> call_decorator(config, adapter_config, TestMessageHandler, name='pyams.test',
@@ -151,7 +165,7 @@ named adapter, whose name must be the *category* of the message:
                         'source': {'id': 'system:admin',
                                    'title': 'System manager authentication'},
                         'status': 'info',
-                        'target': {'principals': ['test:user']},
+                        'target': {'principals': ['system:admin']},
                         'timestamp': '...T...',
                         'title': 'Test message',
                         'url': None}],
@@ -170,7 +184,7 @@ A default message handler is available on user login:
     >>> message = ChatMessage(request=request,
     ...                       action='notify',
     ...                       category='user.login',
-    ...                       source=request.principal.id,
+    ...                       source='test:user',
     ...                       title="User login",
     ...                       message="{} logged in...".format(request.principal.title))
     >>> message.send()
@@ -184,12 +198,24 @@ A default message handler is available on user login:
                         'channel': 'chat:main',
                         'host': 'http://example.com',
                         'message': '__unknown__ logged in...',
+                        'source': {'id': 'test:user',
+                                   'title': 'MissingPrincipal: test:user'},
+                        'status': 'info',
+                        'target': {'principals': ['system:admin']},
+                        'timestamp': '...T...',
+                        'title': 'User login',
+                        'url': None},
+                       {'action': 'notify',
+                        'category': 'pyams.test',
+                        'channel': 'chat:main',
+                        'host': 'http://example.com',
+                        'message': 'Test message content',
                         'source': {'id': 'system:admin',
                                    'title': 'System manager authentication'},
                         'status': 'info',
                         'target': {'principals': ['system:admin']},
                         'timestamp': '...T...',
-                        'title': 'User login',
+                        'title': 'Test message',
                         'url': None}],
      'timestamp': ...}
 
