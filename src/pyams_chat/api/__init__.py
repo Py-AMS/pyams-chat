@@ -124,7 +124,7 @@ def get_notifications(request):
             if message.get('host') != request.host_url:
                 return
             target = message.get('target', {})
-            if request.principal.id in target.get('principals', ()):
+            if request.effective_principals & set(target.get('principals', ())):
                 yield message
 
     timestamp = datetime.utcnow().timestamp()
