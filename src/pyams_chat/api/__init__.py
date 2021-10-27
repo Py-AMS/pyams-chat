@@ -121,8 +121,13 @@ def get_notifications(request):
         for message in messages:
             if isinstance(message, (str, bytes)):
                 message = json.loads(message)
+            # don't get messages from other hosts
             if message.get('host') != request.host_url:
-                return
+                continue
+            # don't get messages from current user
+            if message.get('source', {}).get('id') == request.principal.id:
+                continue
+            # filter message targets
             target = message.get('target', {})
             if set(request.effective_principals) & set(target.get('principals', ())):
                 yield message
