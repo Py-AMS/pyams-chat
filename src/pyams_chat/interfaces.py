@@ -21,6 +21,9 @@ from zope.schema import Dict, Text, TextLine
 from pyams_chat import _
 
 
+CHAT_PING_ROUTE = 'chat.ping'
+CHAT_WORKER_ROUTE = 'chat.worker'
+
 REST_CONTEXT_ROUTE = 'chat.rest.context'
 REST_NOTIFICATIONS_ROUTE = 'chat.rest.notifications'
 

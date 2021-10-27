@@ -20,7 +20,9 @@ import re
 from pyramid.settings import asbool
 
 from pyams_chat.client import RedisClient
-from pyams_chat.interfaces import IRedisClient, REST_CONTEXT_ROUTE, REST_NOTIFICATIONS_ROUTE
+from pyams_chat.interfaces import CHAT_PING_ROUTE, CHAT_WORKER_ROUTE, IRedisClient, \
+    REST_CONTEXT_ROUTE, \
+    REST_NOTIFICATIONS_ROUTE
 
 
 __docformat__ = 'restructuredtext'
@@ -51,24 +53,34 @@ def get_client(request):
 def include_package(config):
     """Pyramid package include"""
 
+    registry = config.registry
+    settings = registry.settings
+
     # add translations
     config.add_translation_dirs('pyams_chat:locales')
 
     # add request methods
     config.add_request_method(get_client, 'redis_client', reify=True)
 
+    # register ServiceWorker script route
+    config.add_route(CHAT_PING_ROUTE,
+                     settings.get('pyams_chat.chat_ping_route',
+                                  '/chat-ping'))
+
+    config.add_route(CHAT_WORKER_ROUTE,
+                     settings.get('pyams_chat.chat_worker_route',
+                                  '/chat-sw.js'))
+
     # register new REST API routes
     config.add_route(REST_CONTEXT_ROUTE,
-                     config.registry.settings.get('pyams_chat.rest_context_route',
-                                                  '/api/chat/context'))
+                     settings.get('pyams_chat.rest_context_route',
+                                  '/api/chat/context'))
 
     config.add_route(REST_NOTIFICATIONS_ROUTE,
-                     config.registry.settings.get('pyams_chat.rest_notifications_route',
-                                                  '/api/chat/notifications'))
+                     settings.get('pyams_chat.rest_notifications_route',
+                                  '/api/chat/notifications'))
 
     # initialize Redis client
-    registry = config.registry
-    settings = registry.settings
     if asbool(settings.get('pyams_chat.start_client', True)):
         client = client_from_config(settings)
         registry.registerUtility(client, IRedisClient)
