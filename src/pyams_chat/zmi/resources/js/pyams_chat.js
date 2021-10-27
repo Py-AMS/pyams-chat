@@ -8,6 +8,9 @@ if (window.$ === undefined) {
 }
 
 
+/**
+ * PyAMS chat module
+ */
 const chat = {
 
     unloadHandler: null,
@@ -20,131 +23,81 @@ const chat = {
      * Module initialization
      */
     initChat: () => {
-        chat.openConnection();
+        chat.initService();
     },
 
     /**
-     * Open WebSocket connection
+     * Initialize service worker
      */
-    openConnection: () => {
-        const
-            notifications = $('#user-notifications'),
-            wsEndpoint = notifications.data('ams-notifications-endpoint');
-        if (wsEndpoint) {
-            // Get authentication token
-            MyAMS.require('ajax', 'notifications')
-                .then(() => {
-                    MyAMS.ajax.get(`${notifications.data('ams-jwt-verify-route')}`)
-                        .then((result) => {
-                            if (result.status === 'success') {
-                                chat.accessToken = result.accessToken;
-                                chat.refreshToken = result.refreshToken;
-                                chat.wsClient = new WebSocket(wsEndpoint,
-                                    ['accessToken', chat.accessToken]);
-                                chat.wsClient.onopen = chat.onOpened;
-                                chat.wsClient.onmessage = chat.onMessage;
-                                chat.wsClient.onclose = chat.onClosed;
-                                if (chat.checkInterval !== null) {
-                                    clearInterval(chat.checkInterval);
-                                }
-                                chat.checkInterval = setInterval(chat.checkConnection, 30000);
-                            }
-                        });
+    initService: () => {
+        if ('serviceWorker' in navigator) {
+
+            navigator.serviceWorker
+                .register('/chat-sw.js')
+                .then((reg) => {
+                    console.debug(">>> Chat ServiceWorker registered with scope: ", reg.scope);
+                })
+                .catch((err) => {
+                    console.debug(">>> Chat ServiceWorker registration failed: ", err);
                 });
+
+            navigator.serviceWorker
+                .addEventListener('message', chat.onServiceMessage);
+
+            navigator.serviceWorker.ready
+                .then((reg) => {
+                    console.debug('>>> Service worker ready', reg);
+                    const
+                        notifications = $('#user-notifications'),
+                        wsEndpoint = notifications.data('ams-notifications-endpoint'),
+                        refreshRoute = notifications.data('ams-jwt-refresh-route'),
+                        verifyRoute = `${notifications.data('ams-jwt-verify-route')}`;
+                    setTimeout(() => {
+                        console.debug(`  > fetching URL ${verifyRoute}...`);
+                        MyAMS.require('ajax', 'notifications')
+                            .then(() => {
+                                MyAMS.ajax.get(verifyRoute)
+                                    .then((result) => {
+                                        console.debug('  > got JWT token!', result);
+                                        reg.active.postMessage(JSON.stringify({
+                                            action: 'setConfig',
+                                            config: {
+                                                accessToken: result.accessToken,
+                                                refreshToken: result.refreshToken,
+                                                wsEndpoint: wsEndpoint,
+                                                jwtRefreshRoute: refreshRoute,
+                                                jwtVerifyRoute: verifyRoute
+                                            }
+                                        }));
+                                    });
+                            });
+                    }, 100);
+                });
+
+            /**
+             * Fetch resource to keep service-worker alive!
+             */
+            setInterval(async () => {
+                await fetch('/chat-ping')
+            }, 15000);
         }
     },
 
-    /**
-     * Check WebSocket connection on periodic interval
-     */
-    checkConnection: () => {
-        if ((chat.wsClient === null) || (chat.wsClient.readyState === WebSocket.CLOSED)) {
-            chat.openConnection();
+    onServiceMessage: (event) => {
+        console.debug(">>> received service message", event);
+        const
+            message = event.data,
+            service = chat.services[message.action];
+        if (typeof service === 'function') {
+            service(message);
         }
     },
 
-    /**
-     * Event on opened WebSocket
-     */
-    onOpened: (evt) => {
-        console.debug("WS opened", evt);
-    },
+    services: {
 
-    /**
-     * Get message from WebSocket
-     */
-    onMessage: (evt) => {
-        let message = evt.data;
-        if (typeof message === 'string') {
-            try {
-                message = JSON.parse(message);
-            }
-            catch (e) {
-                console.debug(message);
-                return;
-            }
+        notify: (message) => {
+            MyAMS.notifications.addNotification(message, false);
         }
-        chat.showDesktopNotification(message);
-    },
-
-    /**
-     * Show desktop notification
-     */
-    showDesktopNotification: (message) => {
-
-        const checkNotificationPromise = () => {
-            try {
-                Notification.requestPermission().then();
-            } catch (e) {
-                return false
-            }
-            return true;
-        };
-
-        const doNotify = () => {
-            const
-                options = {
-                    title: message.title,
-                    body: message.message,
-                    icon: message.source.avatar
-                },
-                notification = new Notification(options.title, options);
-            if (message.url) {
-                notification.onclick = () => {
-                    window.open(message.url);
-                };
-            }
-        };
-
-        if (!('Notification' in window)) {
-            console.debug("Notifications are not supported by this browser!");
-        } else if (Notification.permission !== 'denied') {
-            if (Notification.permission === 'default') {
-                if (checkNotificationPromise()) {
-                    Notification.requestPermission().then((permission) => {
-                        if (permission === 'granted') {
-                            doNotify();
-                        }
-                    });
-                } else {
-                    Notification.requestPermission((permission) => {
-                        if (permission === 'granted') {
-                            doNotify();
-                        }
-                    });
-                }
-            } else {
-                doNotify();
-            }
-        }
-    },
-
-    /**
-     * Event on closed WebSocket
-     */
-    onClosed: (evt) => {
-        chat.wsClient = null;
-        console.debug("WS closed !!!", evt);
     }
 };
 
