@@ -157,18 +157,7 @@ named adapter, whose name must be the *category* of the message:
     ...                 json.dumps(message, cls=ChatMessageEncoder))
     2
     >>> pprint.pprint(get_notifications(request))
-    {'notifications': [{'action': 'notify',
-                        'category': 'pyams.test',
-                        'channel': 'chat:main',
-                        'host': 'http://example.com',
-                        'message': 'Test message content',
-                        'source': {'id': 'system:admin',
-                                   'title': 'System manager authentication'},
-                        'status': 'info',
-                        'target': {'principals': ['system:admin']},
-                        'timestamp': '...T...',
-                        'title': 'Test message',
-                        'url': None}],
+    {'notifications': [],
      'timestamp': ...}
 
 A default message handler is available on user login:
@@ -204,18 +193,6 @@ A default message handler is available on user login:
                         'target': {'principals': ['system:admin']},
                         'timestamp': '...T...',
                         'title': 'User login',
-                        'url': None},
-                       {'action': 'notify',
-                        'category': 'pyams.test',
-                        'channel': 'chat:main',
-                        'host': 'http://example.com',
-                        'message': 'Test message content',
-                        'source': {'id': 'system:admin',
-                                   'title': 'System manager authentication'},
-                        'status': 'info',
-                        'target': {'principals': ['system:admin']},
-                        'timestamp': '...T...',
-                        'title': 'Test message',
                         'url': None}],
      'timestamp': ...}
 
@@ -270,6 +247,27 @@ A small viewlet is available to integrate notifications into management interfac
             </div>
         </div>
     </div>
+
+
+Chat service worker views
+-------------------------
+
+Two custom views are used by chat service worker: one is just a ping service, while the other
+one is used to load worker script in a global scope:
+
+    >>> from pyams_chat.zmi.worker import chat_ping, chat_worker_script
+
+    >>> resp = chat_ping(request)
+    >>> resp
+    <Response at 0x... 200 OK>
+    >>> resp.text
+    'PONG'
+
+    >>> resp = chat_worker_script(request)
+    >>> resp
+    <FileResponse at 0x... 200 OK>
+    >>> resp.content_type
+    'text/javascript'
 
 
 Tests cleanup:
