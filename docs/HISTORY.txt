@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.1
+-----
+ - doctests updates
+
 1.1.0
 -----
  - added service worker to handle websockets messages and notifications
