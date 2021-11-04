@@ -2,7 +2,9 @@
 	 tal:define="js tales:resource_path('pyams_chat.zmi:chat_js')"
 	 data-ams-modules='{
 	 	"notifications": "notifications",
-	 	"chat": "${js}"
+	 	"chat": {
+	 		"src": "${js}"
+		}
 	 }'
 	 data-ams-callback="MyAMS.chat.initChat"
 	 data-ams-events-handlers='{"show.bs.dropdown": "MyAMS.notifications.getNotifications"}'

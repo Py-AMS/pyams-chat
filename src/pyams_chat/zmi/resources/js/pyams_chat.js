@@ -103,7 +103,7 @@ const chat = {
 
 
 if (window.MyAMS) {
-    MyAMS.config.modules.push('myams_chat');
+    MyAMS.config.modules.push('chat');
     MyAMS.chat = chat;
     console.debug("MyAMS: chat module loaded...");
 }
