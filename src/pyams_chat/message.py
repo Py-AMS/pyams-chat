@@ -24,9 +24,17 @@ from zope.schema.fieldproperty import FieldProperty
 
 from pyams_chat.include import get_client
 from pyams_chat.interfaces import IChatMessage, IChatMessageExtension, IChatMessageHandler
+from pyams_file.image import get_image_selection
 from pyams_security.interfaces.base import IPrincipalInfo
 from pyams_security.utility import get_principal
 from pyams_utils.adapter import get_adapter_weight
+
+try:
+    from pyams_zmi.interfaces.configuration import IZMIConfiguration
+    from pyams_zmi.interfaces.profile import IUserProfile
+except ImportError:
+    IZMIConfiguration = None
+    IUserProfile = None
 
 
 __docformat__ = 'restructuredtext'
@@ -43,6 +51,7 @@ class ChatMessage:  # pylint: disable=too-many-instance-attributes
     status = FieldProperty(IChatMessage['status'])
     title = FieldProperty(IChatMessage['title'])
     message = FieldProperty(IChatMessage['message'])
+    image = FieldProperty(IChatMessage['image'])
     source = FieldProperty(IChatMessage['source'])
     target = FieldProperty(IChatMessage['target'])
     url = FieldProperty(IChatMessage['url'])
@@ -69,6 +78,7 @@ class ChatMessage:  # pylint: disable=too-many-instance-attributes
         self.status = settings.pop('status', 'info')
         self.title = settings.pop('title', None)
         self.message = settings.pop('message', None)
+        self.image = settings.pop('image', None)
         source = settings.pop('source', None) or request.principal.id
         if IPrincipalInfo.providedBy(source):  # pylint: disable=no-value-for-parameter
             source = source.id
@@ -90,12 +100,19 @@ class ChatMessage:  # pylint: disable=too-many-instance-attributes
                 self.request.registry.getAdapters((self,), IChatMessageExtension),
                 key=get_adapter_weight):
             pass  # adapters should automatically extend current message
-        # profile = IPublicProfile(principal)
-        # if profile.avatar:
-        #     self.source['avatar'] = absolute_url(profile.avatar, self.request,
-        #                                          '++thumb++square:32x32.png')
-        # configuration = IBackOfficeConfiguration(self.request.root)
-        # self.title = '{0} - {1}'.format(configuration.short_title, principal.title)
+        # check user profile
+        avatar = None
+        if IUserProfile is not None:
+            profile = IUserProfile(principal, None)
+            if profile is not None:
+                avatar = profile.get_avatar(size='128x128')
+        if (avatar is None) and (IZMIConfiguration is not None):
+            configuration = IZMIConfiguration(self.request.root, None)
+            if configuration is not None:
+                avatar = get_image_selection(configuration.favicon, 'square', '128x128',
+                                             self.request)
+        if avatar is not None:
+            self.source['avatar'] = avatar
 
     def get_target(self):
         """Get message target"""
@@ -135,6 +152,7 @@ class ChatMessageEncoder(JSONEncoder):
                 'status': obj.status,
                 'title': obj.title,
                 'message': obj.message,
+                'image': obj.image,
                 'source': obj.source,
                 'target': obj.target,
                 'url': obj.url,

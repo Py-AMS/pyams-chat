@@ -16,7 +16,7 @@ This module defines main chat interfaces.
 """
 
 from zope.interface import Attribute, Interface
-from zope.schema import Dict, Text, TextLine
+from zope.schema import Dict, Text, TextLine, URI
 
 from pyams_chat import _
 
@@ -44,6 +44,9 @@ class IChatMessage(Interface):
     title = TextLine(title=_("Message title"))
 
     message = Text(title=_("Message content"))
+
+    image = URI(title=_("Message image URL"),
+                required=False)
 
     source = Dict(title=_("Message source"),
                   description=_("Attributes of the principal which emitted the notification"),

@@ -238,7 +238,8 @@ const ChatService = {
                     data: {
                         url: message.url
                     },
-                    image: message.source?.avatar,
+                    icon: message.source?.avatar,
+                    image: message.image,
                     timestamp: message.timestamp
                 });
             });
