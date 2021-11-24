@@ -186,6 +186,7 @@ A default message handler is available on user login:
                         'category': 'user.login',
                         'channel': 'chat:main',
                         'host': 'http://example.com',
+                        'image': None,
                         'message': '__unknown__ logged in...',
                         'source': {'id': 'test:user',
                                    'title': 'MissingPrincipal: test:user'},

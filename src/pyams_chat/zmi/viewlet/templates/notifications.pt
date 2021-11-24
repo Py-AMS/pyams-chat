@@ -1,6 +1,8 @@
 <div id="user-notifications" class="ml-1"
 	 tal:define="js tales:resource_path('pyams_chat.zmi:chat_js')"
 	 data-ams-modules='{
+	 	"events": "events",
+	 	"callbacks": "callbacks",
 	 	"notifications": "notifications",
 	 	"chat": {
 	 		"src": "${js}"
