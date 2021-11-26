@@ -210,6 +210,8 @@ A small viewlet is available to integrate notifications into management interfac
     >>> print(viewlet.render())
     <div id="user-notifications" class="ml-1"
          data-ams-modules='{
+             "events": "events",
+             "callbacks": "callbacks",
              "notifications": "notifications",
              "chat": {
                  "src": "/--static--/pyams_chat/:version:...T.../js/pyams_chat.js"
