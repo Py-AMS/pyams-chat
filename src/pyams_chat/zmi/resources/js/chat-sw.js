@@ -233,15 +233,23 @@ const ChatService = {
                 if (!status) {
                     return;
                 }
-                ChatSW.registration.showNotification(message.title, {
-                    body: message.message,
-                    data: {
-                        url: message.url
+                const
+                    options = {
+                        body: message.message,
+                        data: {
+                            url: message.url
+                        },
+                        timestamp: message.timestamp
                     },
-                    icon: message.source?.avatar,
-                    image: message.image,
-                    timestamp: message.timestamp
-                });
+                    avatar = message.source?.avatar,
+                    image = message.image;
+                if (avatar) {
+                    options.icon = avatar;
+                }
+                if (image) {
+                    options.image = image;
+                }
+                ChatSW.registration.showNotification(message.title, options);
             });
             await ChatService.postMessage(message);
         },
