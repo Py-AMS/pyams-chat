@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.5
+-----
+ - version mismatch
+
 1.1.4
 -----
  - updated service worker notifications handler
