@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.2
+-----
+ - updated PyAMS_chat module registration
+ - added image support to notifications
+
 1.1.1
 -----
  - doctests updates
