@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.3
+-----
+ - doctest correction
+
 1.1.2
 -----
  - updated PyAMS_chat module registration
