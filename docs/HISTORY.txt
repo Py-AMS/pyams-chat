@@ -1,6 +1,10 @@
 Changelog
 =========
 
+1.1.4
+-----
+ - updated service worker notifications handler
+
 1.1.3
 -----
  - doctest correction
