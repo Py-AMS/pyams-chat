@@ -20,8 +20,9 @@ from pyramid.events import subscriber
 
 from pyams_chat.interfaces import IChatMessage, IChatMessageHandler
 from pyams_chat.message import ChatMessage
-from pyams_security.interfaces import ADMIN_USER_ID, IAuthenticatedPrincipalEvent, \
-    IProtectedObject, SYSTEM_ADMIN_ROLE
+from pyams_security.interfaces import IProtectedObject
+from pyams_security.interfaces.names import ADMIN_USER_ID, SYSTEM_ADMIN_ROLE
+from pyams_security.interfaces.plugin import IAuthenticatedPrincipalEvent
 from pyams_security.utility import get_principal
 from pyams_utils.adapter import ContextAdapter, adapter_config
 from pyams_utils.request import query_request

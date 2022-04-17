@@ -16,7 +16,7 @@ This module defines a viewlet which can be used to display user notifications.
 """
 
 from pyams_chat.zmi.viewlet.interfaces import IUserNotificationsViewletManager
-from pyams_security.interfaces import UNKNOWN_PRINCIPAL_ID
+from pyams_security.interfaces.names import UNKNOWN_PRINCIPAL_ID
 from pyams_template.template import template_config
 from pyams_viewlet.manager import TemplateBasedViewletManager, WeightOrderedViewletManager, \
     viewletmanager_config

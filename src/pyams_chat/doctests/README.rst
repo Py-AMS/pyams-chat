@@ -162,7 +162,7 @@ named adapter, whose name must be the *category* of the message:
 
 A default message handler is available on user login:
 
-    >>> from pyams_security.interfaces import AuthenticatedPrincipalEvent
+    >>> from pyams_security.interfaces.plugin import AuthenticatedPrincipalEvent
 
     >>> request.principal = PrincipalInfo(id='system:admin')
     >>> event = AuthenticatedPrincipalEvent('admin', 'test:user')
