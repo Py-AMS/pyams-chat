@@ -32,6 +32,7 @@ from pyams_chat.message import ChatMessage
 __docformat__ = 'restructuredtext'
 
 from pyams_chat import _
+from pyams_security.rest import check_cors_origin, set_cors_headers
 
 
 TEST_MODE = sys.argv[-1].endswith('/test')
@@ -82,7 +83,14 @@ chat_service = Service(name=REST_CONTEXT_ROUTE,
                        description="PyAMS chat context API")
 
 
-@chat_service.get(require_csrf=False,
+@chat_service.options(validators=(check_cors_origin, set_cors_headers),
+                      **service_params)
+def chat_options(request):  # pylint: disable=unused-argument
+    """Chat service OPTIONS handler"""
+    return ''
+
+
+@chat_service.get(validators=(check_cors_origin, set_cors_headers),
                   **service_params)
 def get_chat_context(request):
     """REST chat context service"""
@@ -111,7 +119,14 @@ notifications_service = Service(name=REST_NOTIFICATIONS_ROUTE,
                                 description='PyAMS chat notifications API')
 
 
-@notifications_service.get(require_csrf=False,
+@notifications_service.options(validators=(check_cors_origin, set_cors_headers),
+                               **service_params)
+def notifications_options(request):  # pylint: disable=unused-argument
+    """Notifications service OPTIONS handler"""
+    return ''
+
+
+@notifications_service.get(validators=(check_cors_origin, set_cors_headers),
                            **service_params)
 def get_notifications(request):
     """REST notifications service"""
