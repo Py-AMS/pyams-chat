@@ -17,83 +17,113 @@ This module provides REST API for chat services.
 
 import json
 from datetime import datetime
-import sys
 
-from colander import MappingSchema, OneOf, SchemaNode, String, drop
+from colander import MappingSchema, SchemaNode, SequenceSchema, String, drop
 from cornice import Service
-from pyramid.httpexceptions import HTTPAccepted, HTTPBadRequest, HTTPForbidden, HTTPNotFound, \
-    HTTPOk, HTTPServiceUnavailable, HTTPUnauthorized
+from pyramid.httpexceptions import HTTPOk
 
 from pyams_chat.interfaces import IChatMessageHandler, REST_CONTEXT_ROUTE, \
     REST_NOTIFICATIONS_ROUTE
 from pyams_chat.message import ChatMessage
-
+from pyams_security.rest import check_cors_origin, set_cors_headers
+from pyams_utils.rest import BaseStatusSchema, STATUS, StringListSchema, rest_responses
+from pyams_utils.timezone import tztime
 
 __docformat__ = 'restructuredtext'
 
-from pyams_chat import _
-from pyams_security.rest import check_cors_origin, set_cors_headers
+
+class PrincipalInfo(MappingSchema):
+    """Base principal info"""
+    id = SchemaNode(String(),
+                    description="Principal ID")
+    title = SchemaNode(String(),
+                       description="Principal title")
 
 
-TEST_MODE = sys.argv[-1].endswith('/test')
+class Principal(PrincipalInfo):
+    """Principal schema"""
+    principals = StringListSchema(description="List of inner sub-principals supported "
+                                              "by this principal (including roles)")
 
 
-class StatusSchema(MappingSchema):
-    """Base status response schema"""
+class ChatContext(BaseStatusSchema):
+    """User chat context schema"""
+    principal = Principal(description="Context principal")
+    context = MappingSchema(description="Chat events categories subscribed by the principal")
+
+
+class NotificationSource(PrincipalInfo):
+    """Notification source"""
+    avatar = SchemaNode(String(),
+                        description="URL of principal avatar",
+                        missing=drop)
+
+
+class Notification(MappingSchema):
+    """Notification schema"""
+    host = SchemaNode(String(),
+                      description="Message host name")
+    channel = SchemaNode(String(),
+                         description="Message channel")
+    action = SchemaNode(String(),
+                        description="Message action")
+    category = SchemaNode(String(),
+                          description="Message category")
     status = SchemaNode(String(),
-                        title=_("Response status"),
-                        validator=OneOf(('success', 'error')))
-
-
-class ContextSchema(StatusSchema):
-    """User context schema"""
-    principal = SchemaNode(String(),
-                           title=_("Principal ID"))
-
-
-class ErrorSchema(MappingSchema):
-    """Base error schema"""
-    status = SchemaNode(String(),
-                        title=_("Response status"))
+                        description="Message status")
+    title = SchemaNode(String(),
+                       description="Message title")
     message = SchemaNode(String(),
-                         title=_("Error message"),
-                         missing=drop)
+                         description="Message content")
+    image = SchemaNode(String(),
+                       description="Message image URL",
+                       missing=drop)
+    source = NotificationSource(description="Message source")
+    timestamp = SchemaNode(String(),
+                           description="Message timestamp, in ISO-8601 format")
 
 
-jwt_responses = {
-    HTTPOk.code: ContextSchema(description=_("User context properties")),
-    HTTPAccepted.code: StatusSchema(description=_("Token accepted")),
-    HTTPNotFound.code: ErrorSchema(description=_("Page not found")),
-    HTTPUnauthorized.code: ErrorSchema(description=_("Unauthorized")),
-    HTTPForbidden.code: ErrorSchema(description=_("Forbidden access")),
-    HTTPBadRequest.code: ErrorSchema(description=_("Missing arguments")),
-    HTTPServiceUnavailable.code: ErrorSchema(description=_("Service unavailable"))
-}
+class NotificationsList(SequenceSchema):
+    """Notifications list schema"""
+    notification = Notification()
 
-if TEST_MODE:
-    service_params = {}
-else:
-    service_params = {
-        'response_schemas': jwt_responses
-    }
 
+class NotificationsResults(MappingSchema):
+    """Notifications results schema"""
+    timestamp = SchemaNode(String(),
+                           description="Notifications timestamp, in ISO-8601 format")
+    notifications = NotificationsList(description="Notifications list")
+
+
+#
+# Chat service
+#
 
 chat_service = Service(name=REST_CONTEXT_ROUTE,
                        pyramid_route=REST_CONTEXT_ROUTE,
                        description="PyAMS chat context API")
 
 
-@chat_service.options(validators=(check_cors_origin, set_cors_headers),
-                      **service_params)
+@chat_service.options(validators=(check_cors_origin, set_cors_headers))
 def chat_options(request):  # pylint: disable=unused-argument
     """Chat service OPTIONS handler"""
     return ''
 
 
+class ChatServiceGetResponse(MappingSchema):
+    """Chat service getter response"""
+    body = ChatContext()
+
+
+chat_service_get_responses = rest_responses.copy()
+chat_service_get_responses[HTTPOk.code] = ChatServiceGetResponse(
+    description="Description of chat service context")
+
+
 @chat_service.get(validators=(check_cors_origin, set_cors_headers),
-                  **service_params)
+                  response_schemas=chat_service_get_responses)
 def get_chat_context(request):
-    """REST chat context service"""
+    """Description of chat service context"""
     principal = request.principal
     message = ChatMessage.create_empty_message(request)
     adapters = [
@@ -102,11 +132,11 @@ def get_chat_context(request):
                                                           IChatMessageHandler)
     ]
     return {
-        'status': 'success',
+        'status': STATUS.SUCCESS.value,
         'principal': {
             'id': principal.id,
             'title': principal.title,
-            'principals': tuple(request.effective_principals)
+            'principals': list(request.effective_principals)
         },
         'context': {
             '*': adapters
@@ -114,20 +144,33 @@ def get_chat_context(request):
     }
 
 
+#
+# Notifications service
+#
+
 notifications_service = Service(name=REST_NOTIFICATIONS_ROUTE,
                                 pyramid_route=REST_NOTIFICATIONS_ROUTE,
                                 description='PyAMS chat notifications API')
 
 
-@notifications_service.options(validators=(check_cors_origin, set_cors_headers),
-                               **service_params)
+@notifications_service.options(validators=(check_cors_origin, set_cors_headers))
 def notifications_options(request):  # pylint: disable=unused-argument
     """Notifications service OPTIONS handler"""
     return ''
 
 
+class NotificationsServiceGetResponse(MappingSchema):
+    """Notifications service getter response"""
+    body = NotificationsResults()
+
+
+notifications_service_get_responses = rest_responses.copy()
+notifications_service_get_responses[HTTPOk.code] = NotificationsServiceGetResponse(
+    description="List of current notifications")
+
+
 @notifications_service.get(validators=(check_cors_origin, set_cors_headers),
-                           **service_params)
+                           response_schemas=notifications_service_get_responses)
 def get_notifications(request):
     """REST notifications service"""
 
@@ -143,11 +186,11 @@ def get_notifications(request):
             if message.get('source', {}).get('id') == request.principal.id:
                 continue
             # filter message targets
-            target = message.get('target', {})
+            target = message.pop('target', {})
             if set(request.effective_principals) & set(target.get('principals', ())):
                 yield message
 
-    timestamp = datetime.utcnow().timestamp()
+    timestamp = tztime(datetime.utcnow()).isoformat()
     client = request.redis_client
     if client is None:
         return {

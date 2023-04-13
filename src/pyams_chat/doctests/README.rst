@@ -26,6 +26,8 @@ a *pubsub* subscriber as defined by PyAMS_chat_WS package.
     >>> include_zodbconn(config)
     >>> from cornice import includeme as include_cornice
     >>> include_cornice(config)
+    >>> from cornice_swagger import includeme as include_swagger
+    >>> include_swagger(config)
     >>> from pyams_utils import includeme as include_utils
     >>> include_utils(config)
     >>> from pyams_security import includeme as include_security
@@ -96,7 +98,7 @@ A REST API is available to get chat context; this context is used to filter chat
     >>> pprint.pprint(get_chat_context(request))
     {'context': {'*': ['user.login']},
      'principal': {'id': 'system:admin',
-                   'principals': (...'system:admin'...),
+                   'principals': [...'system:admin'...],
                    'title': '__unknown__'},
      'status': 'success'}
 
@@ -104,7 +106,7 @@ We can also get chat messages:
 
     >>> from pyams_chat.api import get_notifications
     >>> pprint.pprint(get_notifications(request))
-    {'notifications': [], 'timestamp': ...}
+    {'notifications': [], 'timestamp': '...T...'}
 
 The notifications list is actually empty because the Redis list is filled by the websocket
 server only when notifications are actually dispatched.
@@ -191,7 +193,6 @@ A default message handler is available on user login:
                         'source': {'id': 'test:user',
                                    'title': 'MissingPrincipal: test:user'},
                         'status': 'info',
-                        'target': {'principals': ['system:admin']},
                         'timestamp': '...T...',
                         'title': 'User login',
                         'url': None}],
