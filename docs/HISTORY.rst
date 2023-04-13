@@ -1,6 +1,11 @@
 Changelog
 =========
 
+1.1.9
+-----
+ - updated Colander API schemas for better OpenAPI specifications
+ - added support for Python 3.11
+
 1.1.8
 -----
  - added CORS validators and OPTIONS handler to REST services
