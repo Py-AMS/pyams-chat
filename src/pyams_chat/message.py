@@ -79,7 +79,9 @@ class ChatMessage:  # pylint: disable=too-many-instance-attributes
         self.title = settings.pop('title', None)
         self.message = settings.pop('message', None)
         self.image = settings.pop('image', None)
-        source = settings.pop('source', None) or request.principal.id
+        source = settings.pop('source', None)
+        if not source:
+            source = request.authenticated_userid
         if IPrincipalInfo.providedBy(source):  # pylint: disable=no-value-for-parameter
             source = source.id
         self.source_id = source
