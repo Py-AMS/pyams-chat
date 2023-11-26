@@ -41,14 +41,11 @@ a *pubsub* subscriber as defined by PyAMS_chat_WS package.
 
 We will ne a security policy:
 
-    >>> from pyramid.authorization import ACLAuthorizationPolicy
-    >>> config.set_authorization_policy(ACLAuthorizationPolicy())
-
-    >>> from pyams_security.policy import PyAMSAuthenticationPolicy
-    >>> policy = PyAMSAuthenticationPolicy(secret='my secret',
-    ...                                    http_only=True,
-    ...                                    secure=False)
-    >>> config.set_authentication_policy(policy)
+    >>> from pyams_security.policy import PyAMSSecurityPolicy
+    >>> policy = PyAMSSecurityPolicy(secret='my secret',
+    ...                              http_only=True,
+    ...                              secure=False)
+    >>> config.set_security_policy(policy)
 
     >>> from pyams_security.principal import PrincipalInfo
     >>> from pyams_security.tests import new_test_request

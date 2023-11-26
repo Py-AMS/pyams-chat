@@ -30,7 +30,8 @@ __docformat__ = 'restructuredtext'
 @view_config(route_name=CHAT_PING_ROUTE)
 def chat_ping(request):
     """Chat ping endpoint"""
-    return Response(body='PONG')
+    return Response(body='PONG',
+                    content_type='text/plain')
 
 
 @view_config(route_name=CHAT_WORKER_ROUTE)

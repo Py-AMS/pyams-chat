@@ -126,6 +126,8 @@ def get_chat_context(request):
     """Description of chat service context"""
     principal = request.principal
     message = ChatMessage.create_empty_message(request)
+    identity = request.identity
+    principals = identity.get('principals', ()) if identity is not None else ()
     adapters = [
         name
         for name, adapter in request.registry.getAdapters((message, ),
@@ -136,7 +138,7 @@ def get_chat_context(request):
         'principal': {
             'id': principal.id,
             'title': principal.title,
-            'principals': list(request.effective_principals)
+            'principals': list(principals)
         },
         'context': {
             '*': adapters
@@ -176,6 +178,8 @@ def get_notifications(request):
 
     def filter_messages(messages):
         """Filter user notifications"""
+        identity = request.identity
+        principals = identity.get('principals', ()) if identity is not None else ()
         for message in messages:
             if isinstance(message, (str, bytes)):
                 message = json.loads(message)
@@ -187,7 +191,7 @@ def get_notifications(request):
                 continue
             # filter message targets
             target = message.pop('target', {})
-            if set(request.effective_principals) & set(target.get('principals', ())):
+            if set(principals) & set(target.get('principals', ())):
                 yield message
 
     timestamp = tztime(datetime.utcnow()).isoformat()
