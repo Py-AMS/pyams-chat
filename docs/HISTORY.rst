@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.0.0
+-----
+ - migrated to Pyramid 2.0
+
 1.1.9
 -----
  - updated Colander API schemas for better OpenAPI specifications
