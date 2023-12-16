@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.1.0
+-----
+ - added support for modal target to chat messages
+
 2.0.0
 -----
  - migrated to Pyramid 2.0
