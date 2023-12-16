@@ -55,6 +55,7 @@ class ChatMessage:  # pylint: disable=too-many-instance-attributes
     source = FieldProperty(IChatMessage['source'])
     target = FieldProperty(IChatMessage['target'])
     url = FieldProperty(IChatMessage['url'])
+    modal = FieldProperty(IChatMessage['modal'])
     timestamp = FieldProperty(IChatMessage['timestamp'])
     user_data = FieldProperty(IChatMessage['user_data'])
 
@@ -86,6 +87,7 @@ class ChatMessage:  # pylint: disable=too-many-instance-attributes
             source = source.id
         self.source_id = source
         self.url = settings.pop('url', None)
+        self.modal = settings.pop('modal', False)
         self.timestamp = datetime.now(timezone.utc).isoformat()
         self.user_data = settings
 
@@ -158,6 +160,7 @@ class ChatMessageEncoder(JSONEncoder):
                 'source': obj.source,
                 'target': obj.target,
                 'url': obj.url,
+                'modal': obj.modal,
                 'timestamp': obj.timestamp
             }
         return super().default(obj)

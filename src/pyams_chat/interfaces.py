@@ -16,7 +16,7 @@ This module defines main chat interfaces.
 """
 
 from zope.interface import Attribute, Interface
-from zope.schema import Dict, Text, TextLine, URI
+from zope.schema import Bool, Dict, Text, TextLine, URI
 
 from pyams_chat import _
 
@@ -60,6 +60,11 @@ class IChatMessage(Interface):
     url = TextLine(title=_("Notification URL"),
                    description=_("URL target of this message notification"),
                    required=False)
+
+    modal = Bool(title=_("Modal target?"),
+                 description=_("If 'yes', URL will be opened in a modal dialog"),
+                 required=True,
+                 default=False)
 
     timestamp = TextLine(title=_("Message timestamp in ISO-8601 format"))
 

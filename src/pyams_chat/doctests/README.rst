@@ -187,6 +187,7 @@ A default message handler is available on user login:
                         'host': 'http://example.com',
                         'image': None,
                         'message': '__unknown__ logged in...',
+                        'modal': False,
                         'source': {'id': 'test:user',
                                    'title': 'MissingPrincipal: test:user'},
                         'status': 'info',
