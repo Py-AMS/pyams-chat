@@ -14,7 +14,8 @@
 
 This module defines a viewlet which can be used to display user notifications.
 """
-
+from pyams_chat.interfaces import CHAT_JWT_REFRESH_PATH, CHAT_JWT_REFRESH_ROUTE, CHAT_JWT_VERIFY_PATH, \
+    CHAT_JWT_VERIFY_ROUTE, CHAT_WS_ENDPOINT_SETTING
 from pyams_chat.zmi.viewlet.interfaces import IUserNotificationsViewletManager
 from pyams_security.interfaces.names import UNKNOWN_PRINCIPAL_ID
 from pyams_template.template import template_config
@@ -27,7 +28,8 @@ from pyams_zmi.interfaces.viewlet import IUserLinksViewletManager
 __docformat__ = 'restructuredtext'
 
 
-@viewletmanager_config(name='pyams.usernotifications', layer=IAdminLayer,
+@viewletmanager_config(name='pyams.user-notifications',
+                       layer=IAdminLayer,
                        manager=IUserLinksViewletManager, weight=850,
                        provides=IUserNotificationsViewletManager)
 @template_config(template='templates/notifications.pt')
@@ -45,16 +47,16 @@ class UserNotificationsViewlet(TemplateBasedViewletManager, WeightOrderedViewlet
     @property
     def jwt_refresh_route(self):
         """JWT authentication endpoint"""
-        return self.request.registry.settings.get('pyams_chat.jwt_refresh_route',
-                                                  '/api/auth/jwt/token')
+        return self.request.registry.settings.get(f'{CHAT_JWT_REFRESH_ROUTE}_route.path',
+                                                  CHAT_JWT_REFRESH_PATH)
 
     @property
     def jwt_verify_route(self):
         """JWT token verification route"""
-        return self.request.registry.settings.get('pyams_chat.jwt_verify_route',
-                                                  '/api/auth/jwt/verify')
+        return self.request.registry.settings.get(f'{CHAT_JWT_VERIFY_ROUTE}_route.path',
+                                                  CHAT_JWT_VERIFY_PATH)
 
     @property
     def ws_endpoint(self):
         """Websocket endpoint"""
-        return self.request.registry.settings.get('pyams_chat.ws_endpoint')
+        return self.request.registry.settings.get(CHAT_WS_ENDPOINT_SETTING)

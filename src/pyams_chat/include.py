@@ -20,9 +20,8 @@ import re
 from pyramid.settings import asbool
 
 from pyams_chat.client import RedisClient
-from pyams_chat.interfaces import CHAT_PING_ROUTE, CHAT_WORKER_ROUTE, IRedisClient, \
-    REST_CONTEXT_ROUTE, \
-    REST_NOTIFICATIONS_ROUTE
+from pyams_chat.interfaces import CHAT_PING_PATH, CHAT_PING_ROUTE, CHAT_WORKER_PATH, CHAT_WORKER_ROUTE, IRedisClient, \
+    REST_CONTEXT_PATH, REST_CONTEXT_ROUTE, REST_NOTIFICATIONS_PATH, REST_NOTIFICATIONS_ROUTE
 
 
 __docformat__ = 'restructuredtext'
@@ -64,21 +63,21 @@ def include_package(config):
 
     # register ServiceWorker script route
     config.add_route(CHAT_PING_ROUTE,
-                     settings.get('pyams_chat.chat_ping_route',
-                                  '/chat-ping'))
+                     settings.get(f'{CHAT_PING_ROUTE}_route.path',
+                                  CHAT_PING_PATH))
 
     config.add_route(CHAT_WORKER_ROUTE,
-                     settings.get('pyams_chat.chat_worker_route',
-                                  '/chat-sw.js'))
+                     settings.get(f'{CHAT_WORKER_ROUTE}_route.path',
+                                  CHAT_WORKER_PATH))
 
     # register new REST API routes
     config.add_route(REST_CONTEXT_ROUTE,
-                     settings.get('pyams_chat.rest_context_route',
-                                  '/api/chat/context'))
+                     settings.get(f'{REST_CONTEXT_ROUTE}_route.path',
+                                  REST_CONTEXT_PATH))
 
     config.add_route(REST_NOTIFICATIONS_ROUTE,
-                     settings.get('pyams_chat.rest_notifications_route',
-                                  '/api/chat/notifications'))
+                     settings.get(f'{REST_NOTIFICATIONS_ROUTE}_route.path',
+                                  REST_NOTIFICATIONS_PATH))
 
     # initialize Redis client
     if asbool(settings.get('pyams_chat.start_client', True)):

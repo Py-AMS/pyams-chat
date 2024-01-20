@@ -21,11 +21,44 @@ from zope.schema import Bool, Dict, Text, TextLine, URI
 from pyams_chat import _
 
 
-CHAT_PING_ROUTE = 'chat.ping'
-CHAT_WORKER_ROUTE = 'chat.worker'
+CHAT_PING_ROUTE = 'pyams_chat.ping'
+'''REST chat API route name'''
 
-REST_CONTEXT_ROUTE = 'chat.rest.context'
-REST_NOTIFICATIONS_ROUTE = 'chat.rest.notifications'
+CHAT_PING_PATH = '/chat-ping'
+'''REST chat API default path'''
+
+CHAT_WORKER_ROUTE = 'pyams_chat.worker'
+'''REST chat worker API route name'''
+
+CHAT_WORKER_PATH = '/chat-sw.js'
+'''REST chat worker API default path'''
+
+CHAT_JWT_REFRESH_ROUTE = 'pyams_chat.jwt_refresh_route'
+'''REST JWT refresh API route name'''
+
+CHAT_JWT_REFRESH_PATH = '/api/auth/jwt/token'
+'''REST JWT refresh API default path'''
+
+CHAT_JWT_VERIFY_ROUTE = 'pyams_chat.jwt_verify_route'
+'''REST JWT verify API route name'''
+
+CHAT_JWT_VERIFY_PATH = '/api/auth/jwt/verify'
+'''REST JWT verify API default path'''
+
+CHAT_WS_ENDPOINT_SETTING = 'pyams_chat.ws_endpoint'
+'''Chat websocket endpoint URL configuration setting name'''
+
+REST_CONTEXT_ROUTE = 'pyams_chat.rest.context'
+'''REST chat context API route name'''
+
+REST_CONTEXT_PATH = '/api/chat/context'
+'''REST chat context API default path'''
+
+REST_NOTIFICATIONS_ROUTE = 'pyams_chat.rest.notifications'
+'''REST chat notifications API route'''
+
+REST_NOTIFICATIONS_PATH = '/api/chat/notifications'
+'''REST chat notifications API default path'''
 
 
 class IChatMessage(Interface):
