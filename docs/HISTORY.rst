@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.1.1
+-----
+ - updated REST API route name and configuration setting name
+
 2.1.0
 -----
  - added support for modal target to chat messages
