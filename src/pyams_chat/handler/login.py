@@ -21,6 +21,7 @@ from pyramid.events import subscriber
 from pyams_chat.interfaces import IChatMessage, IChatMessageHandler
 from pyams_chat.message import ChatMessage
 from pyams_security.interfaces import IProtectedObject
+from pyams_security.interfaces.base import IUnavailablePrincipalInfo
 from pyams_security.interfaces.names import ADMIN_USER_ID, SYSTEM_ADMIN_ROLE
 from pyams_security.interfaces.plugin import IAuthenticatedPrincipalEvent
 from pyams_security.utility import get_principal
@@ -36,10 +37,10 @@ from pyams_chat import _  # pylint: disable=ungrouped-imports
 @subscriber(IAuthenticatedPrincipalEvent)
 def handle_authenticated_principal(event):
     """Handle authenticated principal"""
-    request = query_request()
-    if request is None:
+    principal = get_principal(principal_id=event.principal_id)
+    if (principal is None) or IUnavailablePrincipalInfo.providedBy(principal):
         return
-    principal = get_principal(request, principal_id=event.principal_id)
+    request = query_request()
     translate = request.localizer.translate
     message = ChatMessage(request=request,
                           action='notify',
