@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.1.2
+-----
+ - removed notification message for unavailable principals
+
 2.1.1
 -----
  - updated REST API route name and configuration setting name
