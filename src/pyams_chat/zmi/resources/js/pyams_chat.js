@@ -24,6 +24,7 @@ const chat = {
      */
     initChat: () => {
         chat.initService();
+        MyAMS.notifications.getNotificationsBadge();
     },
 
     /**
