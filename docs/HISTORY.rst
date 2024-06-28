@@ -1,6 +1,10 @@
 Changelog
 =========
 
+2.1.3
+-----
+ - updated notifications badge handler
+
 2.1.2
 -----
  - removed notification message for unavailable principals
