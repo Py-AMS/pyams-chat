@@ -1,6 +1,11 @@
 Changelog
 =========
 
+2.1.4
+-----
+ - updated settings configuration keys
+ - added support for Python 3.12
+
 2.1.3
 -----
  - updated notifications badge handler
