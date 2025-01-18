@@ -33,13 +33,13 @@ CHAT_WORKER_ROUTE = 'pyams_chat.worker'
 CHAT_WORKER_PATH = '/chat-sw.js'
 '''REST chat worker API default path'''
 
-CHAT_JWT_REFRESH_ROUTE = 'pyams_chat.jwt_refresh_route'
+CHAT_JWT_REFRESH_ROUTE = 'pyams_chat.jwt_refresh'
 '''REST JWT refresh API route name'''
 
 CHAT_JWT_REFRESH_PATH = '/api/auth/jwt/token'
 '''REST JWT refresh API default path'''
 
-CHAT_JWT_VERIFY_ROUTE = 'pyams_chat.jwt_verify_route'
+CHAT_JWT_VERIFY_ROUTE = 'pyams_chat.jwt_verify'
 '''REST JWT verify API route name'''
 
 CHAT_JWT_VERIFY_PATH = '/api/auth/jwt/verify'
